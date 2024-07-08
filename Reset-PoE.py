@@ -62,12 +62,12 @@ while switch_mem <= number_of_switches:
         #Get LLDP info for interface
         get_lldp = session.get(f"https://{ip_add}/rest/v10.11/system/interfaces/{switch_mem_str}%2F{chassis_mem_str}%2F{int_mem_str}/lldp_neighbors?attributes=&depth=2", verify=False)
         lldp_data = get_lldp.json()
+        print(lldp_data)
         for key in lldp_data:
             chassis_description = lldp_data[key]["neighbor_info"]["chassis_description"]
-            chassis_name = lldp_data[key]["neighbor_info"]["chassis_name"]
             print(chassis_description)
-        if dev_description in chassis_description:
-            dev_list.append(int_number)
+            if dev_description in chassis_description:
+                dev_list.append(int_number)
             
         interface_num += 1
         if interface_num >= 48:
@@ -81,13 +81,13 @@ for int in dev_list:
     print(module_int)
     poe_disable = session.put(f"https://{ip_add}/rest/v10.11/system/interfaces/{module_int[0]}%2F{module_int[1]}%2F{module_int[2]}/poe_interface", json=poe_dis_json, verify=False)
     if poe_disable.status_code == 200:
-        poe_disable_log = (f'{chassis_name} {int} PoE is Disabled')
+        poe_disable_log = (f'{int} PoE is Disabled')
     else:
         poe_disable_log = (f'{int} PoE failed to disable' + ' '+ poe_disable.text)
     time.sleep(2)
     poe_enable = session.put(f"https://{ip_add}/rest/v10.11/system/interfaces/{module_int[0]}%2F{module_int[1]}%2F{module_int[2]}/poe_interface", json=poe_en_json, verify=False)
     if poe_enable.status_code == 200:
-        poe_enable_log = (f'{chassis_name} {int} PoE is Enabled')
+        poe_enable_log = (f'{int} PoE is Enabled')
     else:
         poe_enable_log = (f'{int} PoE failed to enable' + ' '+ poe_enable.text)
     poe_logs = [
